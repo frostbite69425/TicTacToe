@@ -80,8 +80,8 @@ const gameBoard = (function gameBoard() {
 })();
 
 function gameStateController() {
-  const playerone = gameBoard.setPlayers("Hi", "x");
-  const playerTwo = gameBoard.setPlayers("Ji", "o");
+  gameBoard.setPlayers("Hi", "x");
+  gameBoard.setPlayers("Ji", "o");
   const playerArray = gameBoard.getPlayers();
 
   let activePlayer = playerArray[0];
@@ -89,9 +89,7 @@ function gameStateController() {
 
   const scoreBoard = () => {
     for (player of playerArray) {
-      log(
-        `${player.name}'s points : ${gameBoard.getPlayerPoints(activePlayer)}`
-      );
+      log(`${player.name}'s points : ${gameBoard.getPlayerPoints(player)}`);
     }
   };
 
@@ -166,6 +164,7 @@ const winConChecker = (() => {
           activePlayer
         )}`
       );
+      game.scoreBoard();
       gameBoard.resetBoard();
       game.resetRound();
     }
