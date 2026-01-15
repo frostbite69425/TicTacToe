@@ -10,8 +10,12 @@ const gameBoard = (function gameBoard() {
   const rows = 3;
   const columns = 3;
 
+  // INITIALISE EMPTY ARRAYS FOR STORING BOARD DATA AND PLAYERS
+
   let board = [];
   let playersArray = [];
+
+  // CONSTRUCT AN EMPTY BOARD
 
   for (let i = 0; i < rows; i++) {
     board[i] = [];
@@ -20,19 +24,30 @@ const gameBoard = (function gameBoard() {
     }
   }
 
+  // GET FUNCTIONS
+
   const getPlayers = () => playersArray;
+
   const getBoard = () => board;
 
   const assignValue = (player, row, column) => {
-    // VALIDATION REQUIRED HERE
-
     if (board[row][column] == " ") {
       board[row][column] = player.symbol;
       log(getBoard());
+      game.incRound();
       game.switchPlayer();
     } else {
       log("That spot has already been marked! Try selecting a different cell.");
       game.playRound();
+    }
+  };
+
+  const resetBoard = () => {
+    for (let i = 0; i < rows; i++) {
+      board[i] = [];
+      for (let j = 0; j < columns; j++) {
+        board[i][j] = " ";
+      }
     }
   };
 
@@ -50,7 +65,7 @@ const gameBoard = (function gameBoard() {
   };
 
   const incPlayerPoints = (player) => {
-    player.points = player.points++;
+    player.points = player.points + 1;
   };
 
   return {
@@ -60,6 +75,7 @@ const gameBoard = (function gameBoard() {
     setPlayers,
     getPlayerPoints,
     incPlayerPoints,
+    resetBoard,
   };
 })();
 
@@ -67,67 +83,92 @@ function gameStateController() {
   const playerone = gameBoard.setPlayers("Hi", "x");
   const playerTwo = gameBoard.setPlayers("Ji", "o");
   const playerArray = gameBoard.getPlayers();
-  let round = 1;
 
   let activePlayer = playerArray[0];
+  let round = 1;
+
+  const scoreBoard = () => {
+    for (player of playerArray) {
+      log(
+        `${player.name}'s points : ${gameBoard.getPlayerPoints(activePlayer)}`
+      );
+    }
+  };
+
+  const resetRound = () => {
+    round = 1;
+  };
+  const incRound = () => round++;
 
   const switchPlayer = () => {
     activePlayer =
       activePlayer === playerArray[0] ? playerArray[1] : playerArray[0];
-    // log(`${activePlayer.name} is the active player`);
-    // log(`${activePlayer.name}'s turn: `);
   };
+
+  const getActivePlayer = () => activePlayer;
 
   const playRound = () => {
     log(`Round: ${round}`);
     log(`${activePlayer.name}'s turn: `);
     tempDisplayController.tempPromptInput(activePlayer);
-    round++;
-
-    let board = gameBoard.getBoard();
-
     // WIN CON CHECK HERE
     if (round >= 5) {
-      let firstLateralRow = board[0];
-      let secondLateralRow = board[1];
-      let thirdLateralRow = board[2];
-
-      let firstDiagonalRow = [board[0][0], board[1][1], board[2][2]];
-      let secondDiagonalRow = [board[0][2], board[1][1], board[2][0]];
-
-      let firstColumn = [board[0][0], board[1][0], board[2][0]];
-      let secondColumn = [board[0][1], board[1][1], board[2][1]];
-      let thirdColumn = [board[0][2], board[1][2], board[2][2]];
-
-      let winConCheckArray = [
-        firstLateralRow,
-        secondLateralRow,
-        thirdLateralRow,
-        firstDiagonalRow,
-        secondDiagonalRow,
-        firstColumn,
-        secondColumn,
-        thirdColumn,
-      ];
-
-      let result = tempDisplayController.winConController(winConCheckArray);
-
-      if (result) {
-        log(`${activePlayer.name} wins!`);
-        gameBoard.incPlayerPoints(activePlayer);
-        gameBoard.getPlayerPoints(activePlayer);
-      }
+      winConChecker.checkRoundWin(activePlayer);
     }
   };
 
-  return { playRound, switchPlayer };
+  return {
+    playRound,
+    switchPlayer,
+    getActivePlayer,
+    incRound,
+    scoreBoard,
+    resetRound,
+  };
 }
 
-const tempDisplayController = (() => {
-  const tempPromptInput = (activePlayer) => {
-    let row = prompt("Row?");
-    let column = prompt("column?");
-    gameBoard.assignValue(activePlayer, row, column);
+const winConChecker = (() => {
+  const checkRoundWin = (activePlayer) => {
+    let board = gameBoard.getBoard();
+
+    let firstLateralRow = board[0];
+    let secondLateralRow = board[1];
+    let thirdLateralRow = board[2];
+
+    let firstDiagonalRow = [board[0][0], board[1][1], board[2][2]];
+    let secondDiagonalRow = [board[0][2], board[1][1], board[2][0]];
+
+    let firstColumn = [board[0][0], board[1][0], board[2][0]];
+    let secondColumn = [board[0][1], board[1][1], board[2][1]];
+    let thirdColumn = [board[0][2], board[1][2], board[2][2]];
+
+    let winConCheckArray = [
+      firstLateralRow,
+      secondLateralRow,
+      thirdLateralRow,
+      firstDiagonalRow,
+      secondDiagonalRow,
+      firstColumn,
+      secondColumn,
+      thirdColumn,
+    ];
+
+    let result = winConController(winConCheckArray);
+
+    if (result) {
+      game.switchPlayer();
+      activePlayer = game.getActivePlayer();
+
+      log(`${activePlayer.name} wins!`);
+      gameBoard.incPlayerPoints(activePlayer);
+      log(
+        `${activePlayer.name}'s points: ${gameBoard.getPlayerPoints(
+          activePlayer
+        )}`
+      );
+      gameBoard.resetBoard();
+      game.resetRound();
+    }
   };
 
   const winConController = (array) => {
@@ -145,7 +186,32 @@ const tempDisplayController = (() => {
     return winCon;
   };
 
-  return { tempPromptInput, winConController };
+  return { winConController, checkRoundWin };
+})();
+
+const tempDisplayController = (() => {
+  const tempPromptInput = (activePlayer) => {
+    let row = prompt("Row?");
+    let column = prompt("column?");
+
+    if (row == null || column == null || row == "" || column == "") {
+      log("Please type in a valid number!");
+    } else {
+      let rowNum = Number(row);
+      let columnNum = Number(column);
+      if (isNaN(rowNum) || isNaN(columnNum)) {
+        log("Please type in a valid number!");
+        game.playRound();
+      } else if (0 <= rowNum <= 3 && 0 <= columnNum <= 3) {
+        gameBoard.assignValue(activePlayer, rowNum, columnNum);
+      } else {
+        log("Please type in a valid number!");
+        game.playRound();
+      }
+    }
+  };
+
+  return { tempPromptInput };
 })();
 
 let game = gameStateController();
