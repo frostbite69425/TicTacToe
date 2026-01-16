@@ -1,0 +1,5 @@
+1. move the playersArray and all associated methods into the state controller. [done]
+2. delete unrequired api endpoints. [done]
+3. move if clauses outside of the method calls if possible.
+4. try to handle the round logic without exposing the apis.
+5. for winConChecker, return a boolean Value and based on that handle the rest of the logic inside the state controller. [done] 
