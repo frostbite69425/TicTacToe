@@ -13,7 +13,6 @@ const gameBoard = (function gameBoard() {
   // INITIALISE EMPTY ARRAYS FOR STORING BOARD DATA AND PLAYERS
 
   let board = [];
-  let playersArray = [];
 
   // CONSTRUCT AN EMPTY BOARD
 
@@ -26,16 +25,12 @@ const gameBoard = (function gameBoard() {
 
   // GET FUNCTIONS
 
-  const getPlayers = () => playersArray;
-
   const getBoard = () => board;
 
   const assignValue = (player, row, column) => {
     if (board[row][column] == " ") {
       board[row][column] = player.symbol;
       log(getBoard());
-      game.incRound();
-      game.switchPlayer();
     } else {
       log("That spot has already been marked! Try selecting a different cell.");
       game.playRound();
@@ -51,6 +46,20 @@ const gameBoard = (function gameBoard() {
     }
   };
 
+  return {
+    getBoard,
+    assignValue,
+    resetBoard,
+  };
+})();
+
+function gameStateController() {
+  let playersArray = [];
+
+  const getPlayerPoints = (player) => {
+    return player.points;
+  };
+
   const setPlayers = (name, symbol) => {
     player = {
       name,
@@ -60,38 +69,26 @@ const gameBoard = (function gameBoard() {
     playersArray.push(player);
   };
 
-  const getPlayerPoints = (player) => {
-    return player.points;
-  };
-
   const incPlayerPoints = (player) => {
     player.points = player.points + 1;
   };
 
-  return {
-    getBoard,
-    getPlayers,
-    assignValue,
-    setPlayers,
-    getPlayerPoints,
-    incPlayerPoints,
-    resetBoard,
-  };
-})();
+  // INITIALISE PLAYERS
+  setPlayers("Hi", "x");
+  setPlayers("Ji", "o");
 
-function gameStateController() {
-  gameBoard.setPlayers("Hi", "x");
-  gameBoard.setPlayers("Ji", "o");
-  const playerArray = gameBoard.getPlayers();
+  //   SETS THE ACTIVE PLAYER
+  let activePlayer = playersArray[0];
 
-  let activePlayer = playerArray[0];
   let round = 1;
 
   const scoreBoard = () => {
-    for (player of playerArray) {
-      log(`${player.name}'s points : ${gameBoard.getPlayerPoints(player)}`);
+    for (player of playersArray) {
+      log(`${player.name}'s points : ${getPlayerPoints(player)}`);
     }
   };
+
+  //   FUNCTION FOR GETTING, RESETING AND INCREASING THE ROUND
 
   const getRound = () => round;
 
@@ -100,9 +97,11 @@ function gameStateController() {
   };
   const incRound = () => round++;
 
+  //   FUNCTION FOR SWITCHING PLAYERS
+
   const switchPlayer = () => {
     activePlayer =
-      activePlayer === playerArray[0] ? playerArray[1] : playerArray[0];
+      activePlayer === playersArray[0] ? playersArray[1] : playersArray[0];
   };
 
   const getActivePlayer = () => activePlayer;
@@ -111,31 +110,43 @@ function gameStateController() {
     log(`Round: ${round}`);
     log(`${activePlayer.name}'s turn: `);
     tempDisplayController.tempPromptInput(activePlayer);
-    // WIN CON CHECK HERE
+    incRound();
+    switchPlayer();
+
     if (round >= 5) {
-      winConChecker.checkRoundWin(activePlayer);
+      let result = winConChecker.checkRoundWin();
+      if (result == 0) {
+        log("It's a tie! Nobody wins!");
+        scoreBoard();
+        gameBoard.resetBoard();
+        resetRound();
+      } else if (result == 1) {
+        switchPlayer();
+        activePlayer = getActivePlayer();
+
+        log(`${activePlayer.name} wins!`);
+        incPlayerPoints(activePlayer);
+        scoreBoard();
+        gameBoard.resetBoard();
+        resetRound();
+      }
     }
   };
 
   return {
     playRound,
-    switchPlayer,
     getActivePlayer,
-    incRound,
     scoreBoard,
-    resetRound,
     getRound,
   };
 }
 
 const winConChecker = (() => {
-  const checkRoundWin = (activePlayer) => {
+  const checkRoundWin = () => {
     let round = game.getRound();
 
     if (round == 10) {
-      log("It's a tie! Nobody wins!");
-      game.scoreBoard();
-      return;
+      return 0;
     }
 
     let board = gameBoard.getBoard();
@@ -165,19 +176,7 @@ const winConChecker = (() => {
     let result = winConController(winConCheckArray);
 
     if (result) {
-      game.switchPlayer();
-      activePlayer = game.getActivePlayer();
-
-      log(`${activePlayer.name} wins!`);
-      gameBoard.incPlayerPoints(activePlayer);
-      log(
-        `${activePlayer.name}'s points: ${gameBoard.getPlayerPoints(
-          activePlayer
-        )}`
-      );
-      game.scoreBoard();
-      gameBoard.resetBoard();
-      game.resetRound();
+      return 1;
     }
   };
 
@@ -215,13 +214,29 @@ const tempDisplayController = (() => {
       } else if (0 <= rowNum <= 3 && 0 <= columnNum <= 3) {
         gameBoard.assignValue(activePlayer, rowNum, columnNum);
       } else {
-        log("Please type in a valid number!");
+        log("Please type in a numeber in the range of 0 - 2!");
         game.playRound();
       }
     }
   };
 
   return { tempPromptInput };
+})();
+
+const DOMdisplayController = (() => {
+  const cellNodeList = document.querySelectorAll(".container div");
+  log(cellNodeList);
+  const renderCellContents = (row, column, player) => {
+    for (cell of cellNodeList) {
+      if (cell.dataset.row == row && cell.dataset.column == column) {
+        selectedCell = cell;
+
+        selectedCell.textContent = player.symbol;
+      }
+    }
+  };
+
+  return { renderCellContents };
 })();
 
 let game = gameStateController();
