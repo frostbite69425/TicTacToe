@@ -93,6 +93,8 @@ function gameStateController() {
     }
   };
 
+  const getRound = () => round;
+
   const resetRound = () => {
     round = 1;
   };
@@ -122,11 +124,20 @@ function gameStateController() {
     incRound,
     scoreBoard,
     resetRound,
+    getRound,
   };
 }
 
 const winConChecker = (() => {
   const checkRoundWin = (activePlayer) => {
+    let round = game.getRound();
+
+    if (round == 10) {
+      log("It's a tie! Nobody wins!");
+      game.scoreBoard();
+      return;
+    }
+
     let board = gameBoard.getBoard();
 
     let firstLateralRow = board[0];
