@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -8,16 +8,70 @@
     <script src="scripts/script.js" defer></script>
   </head>
   <body>
-    <div class="container">
-      <div class="cells" data-row="0" data-column="0"></div>
-      <div class="cells" data-row="0" data-column="1"></div>
-      <div class="cells" data-row="0" data-column="2"></div>
-      <div class="cells" data-row="1" data-column="0"></div>
-      <div class="cells" data-row="1" data-column="1"></div>
-      <div class="cells" data-row="1" data-column="2"></div>
-      <div class="cells" data-row="2" data-column="0"></div>
-      <div class="cells" data-row="2" data-column="1"></div>
-      <div class="cells" data-row="2" data-column="2"></div>
+    <div class="game-interface">
+      <div class="round-display"></div>
+      <div class="notification"></div>
+      <div class="game-board">
+        <div class="container">
+          <div class="cells" data-row="0" data-column="0"></div>
+          <div class="cells" data-row="0" data-column="1"></div>
+          <div class="cells" data-row="0" data-column="2"></div>
+          <div class="cells" data-row="1" data-column="0"></div>
+          <div class="cells" data-row="1" data-column="1"></div>
+          <div class="cells" data-row="1" data-column="2"></div>
+          <div class="cells" data-row="2" data-column="0"></div>
+          <div class="cells" data-row="2" data-column="1"></div>
+          <div class="cells" data-row="2" data-column="2"></div>
+        </div>
+      </div>
+      <div class="game-controls">
+        <button type="button">Start game!</button>
+        <button class="none" type="button">Play again!</button>
+      </div>
     </div>
+    <dialog class="modal">
+      <form class="modal-form">
+        <p>
+          <p>
+            <label for="user-name-one">
+              Player One Name:
+              <input type="text" name="user-name-one" id="user-name-one" required />
+            </label>
+          </p>
+          <p>
+            <label for="symbol-one">
+              Symbol for player one:
+              <select name="symbol-one" id="symbol-one" required>
+                <option value="x">x</option>
+                <option value="o">o</option>
+              </select>
+            </label>
+          </p>
+          <p>
+            <label for="user-name-two">
+              Player Two Name:
+              <input type="text" name="user-name-two" id="user-name-two" required/>
+            </label>
+          </p>
+          <p>
+            <label for="symbol-two">
+              Symbol for player two:
+              <select name="symbol-two" id="symbol-two" required>
+                <option value="x">x</option>
+                <option value="o">o</option>
+              </select>
+            </label>
+          </p>
+        </p>
+        <div class="modal-btns">
+          <button value="cancel" class="cancel" formmethod="dialog" type="button">
+            Cancel
+          </button>
+          <button id="confirm-btn" class="confirm" value="default" type="button">
+            Confirm
+          </button>
+        </div>
+      </form>
+    </dialog>
   </body>
 </html>
