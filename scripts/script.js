@@ -28,9 +28,6 @@ const gameBoard = (function gameBoard() {
   const getBoard = () => board;
 
   const assignValue = (player, row, column) => {
-    log(column);
-    log(board[row][column]);
-    log(board[row][column] == " ");
     if (board[row][column] == " ") {
       board[row][column] = player.symbol;
       return true;
@@ -55,12 +52,14 @@ const gameBoard = (function gameBoard() {
   };
 })();
 
-function gameStateController() {
+const gameStateController = (() => {
   let playersArray = [];
 
   const getPlayerPoints = (player) => {
     return player.points;
   };
+
+  let activePlayer;
 
   const setPlayers = (name, symbol) => {
     player = {
@@ -69,6 +68,7 @@ function gameStateController() {
       points: 0,
     };
     playersArray.push(player);
+    activePlayer = playersArray[0];
   };
 
   const incPlayerPoints = (player) => {
@@ -77,11 +77,8 @@ function gameStateController() {
 
   // INITIALISE PLAYERS
   // DEBUG: COMMENTING THESE OUT AND MAKING SET PLAYERS PUBLIC
-  setPlayers("Hi", "x");
-  setPlayers("Ji", "o");
-
-  //   SETS THE ACTIVE PLAYER
-  let activePlayer = playersArray[0];
+  // setPlayers("Hi", "x");
+  // setPlayers("Ji", "o");
 
   let round = 1;
 
@@ -158,7 +155,9 @@ function gameStateController() {
     getRound,
     setPlayers,
   };
-}
+})();
+
+// DEBUG MAKING GAMESTATECONTROLLER AN IIFE TO AVOID MAKING DIFFERENT INSTANCES OF THE SAME VARIABLES.
 
 const winConChecker = (() => {
   const checkRoundWin = () => {
@@ -220,26 +219,11 @@ const winConChecker = (() => {
 const DOMdisplayController = (() => {
   const cellNodeList = document.querySelectorAll(".container div");
   const notificationDiv = document.querySelector(".notification");
-  const activePlayer = gameStateController().getActivePlayer();
+  const activePlayer = gameStateController.getActivePlayer();
 
   // DEBUG: I HAVE YET TO FIGURE OUT THE FLOW
-  const userInput = () => {
-    let board = gameBoard.getBoard();
-    cellNodeList.forEach((div) => {
-      log(1);
 
-      div.addEventListener("click", () => {
-        log(div);
-        row = div.dataset.row;
-        col = div.dataset.column;
-        if (board[row][col] == " ") {
-          gameBoard.assignValue(activePlayer, row, col);
-        } else {
-          renderNotification("Space already occupied!");
-        }
-      });
-    });
-  };
+  // FLOW THINGY MOVED OUTSIDE OF THE DISPLAY CONTROLLER
 
   const renderCellContents = (row, column, player) => {
     for (let cell of cellNodeList) {
@@ -267,7 +251,6 @@ const DOMdisplayController = (() => {
     renderCellContents,
     renderNotification,
     resetBoardDisplay,
-    userInput,
   };
 })();
 
@@ -283,6 +266,7 @@ const gameStart = () => {
   const symbolOne = document.querySelector("#symbol-one");
   const userNameTwo = document.querySelector("#user-name-two");
   const symbolTwo = document.querySelector("#symbol-two");
+  const gameBoardDiv = document.querySelector(".game-board");
 
   const showModal = (() => {
     startGameBtn.addEventListener("click", () => {
@@ -294,6 +278,25 @@ const gameStart = () => {
     modal.close();
   });
 
+  const gameLoop = () => {
+    const cellNodeList = document.querySelectorAll(".container div");
+    let board = gameBoard.getBoard();
+
+    for (cell of cellNodeList) {
+      cell.addEventListener("click", () => {
+        let activePlayer = gameStateController.getActivePlayer();
+        row = cell.dataset.row;
+        col = cell.dataset.column;
+        if (board[row][col] == " ") {
+          gameBoard.assignValue(activePlayer, row, col);
+          DOMdisplayController.renderCellContents(row, col, activePlayer);
+        } else {
+          DOMdisplayController.renderNotification("Space already occupied!");
+        }
+      });
+    }
+  };
+
   modalConfirmBtn.addEventListener("click", (e) => {
     e.preventDefault();
     if (
@@ -302,14 +305,27 @@ const gameStart = () => {
       !symbolOne.checkValidity() ||
       !symbolTwo.checkValidity()
     ) {
-      form.reportValidity();
+      modalForm.reportValidity();
       return;
     }
 
-    gameStateController().setPlayers(userNameOne.value, symbolOne.value);
-    gameStateController().setPlayers(userNameTwo.value, symbolTwo.value);
+    gameStateController.setPlayers(
+      userNameOne.value.toString(),
+      symbolOne.value.toString(),
+    );
+    gameStateController.setPlayers(
+      userNameTwo.value.toString(),
+      symbolTwo.value.toString(),
+    );
+
+    log(gameStateController.getActivePlayer());
+    log(gameStateController.scoreBoard());
+
     modal.close();
     modalForm.reset();
+    gameBoardDiv.classList.toggle("none");
+
+    gameLoop();
   });
 
   modalCancelBtn.addEventListener("click", () => {
@@ -317,9 +333,9 @@ const gameStart = () => {
     modalForm.reset();
   });
 
-  DOMdisplayController.userInput();
+  // DOMdisplayController.userInput();
 };
 
 gameStart();
 
-// let game = gameStateController();
+// let game = gameStateController;

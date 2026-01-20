@@ -80,15 +80,23 @@ h6 {
   grid-template-rows: 1fr 1fr 4fr 50px;
 }
 
-.none {
-  display: none;
-}
-
 .container {
   height: 80dvh;
   place-items: center;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(3, 1fr);
+  grid-template-columns: repeat(3, 100px);
+  grid-template-rows: repeat(3, 100px);
   gap: 1rem;
+
+  > div {
+    height: 100%;
+    width: 100%;
+    background-color: #7c7c7c;
+    color: white;
+    font-size: 50px;
+  }
+}
+
+.none {
+  display: none;
 }
