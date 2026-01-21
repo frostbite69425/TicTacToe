@@ -75,11 +75,6 @@ const gameStateController = (() => {
     player.points = player.points + 1;
   };
 
-  // INITIALISE PLAYERS
-  // DEBUG: COMMENTING THESE OUT AND MAKING SET PLAYERS PUBLIC
-  // setPlayers("Hi", "x");
-  // setPlayers("Ji", "o");
-
   let round = 1;
 
   const scoreBoard = () => {
@@ -109,10 +104,6 @@ const gameStateController = (() => {
   // PASSING THE ROWNUM AND COLNUM ARGUMENTS INTO PLAYROUND
 
   const playRound = (rowNum, colNum) => {
-    DOMdisplayController.renderNotification(
-      `Round: ${round} ${activePlayer.name}'s turn: `,
-    );
-
     // DEBUG: THIS WILL STILL NEED A VALIDATION CHECK IN ORDER TO PREVENT THE CODE FROM BREAKING
     let returnVal = gameBoard.assignValue(activePlayer, rowNum, colNum);
     if (returnVal) {
@@ -129,10 +120,13 @@ const gameStateController = (() => {
       let result = winConChecker.checkRoundWin();
       if (result == 0) {
         DOMdisplayController.renderNotification("It's a tie! Nobody wins!");
+        switchPlayer();
         scoreBoard();
         gameBoard.resetBoard();
         DOMdisplayController.resetBoardDisplay();
         resetRound();
+        // DEBUG
+        return "round end";
       } else if (result == 1) {
         switchPlayer();
         activePlayer = getActivePlayer();
@@ -144,6 +138,7 @@ const gameStateController = (() => {
         gameBoard.resetBoard();
         DOMdisplayController.resetBoardDisplay();
         resetRound();
+        return "round end";
       }
     }
   };
@@ -161,7 +156,7 @@ const gameStateController = (() => {
 
 const winConChecker = (() => {
   const checkRoundWin = () => {
-    let round = game.getRound();
+    let round = gameStateController.getRound();
 
     if (round == 10) {
       return 0;
@@ -219,7 +214,7 @@ const winConChecker = (() => {
 const DOMdisplayController = (() => {
   const cellNodeList = document.querySelectorAll(".container div");
   const notificationDiv = document.querySelector(".notification");
-  const activePlayer = gameStateController.getActivePlayer();
+  const roundDiv = document.querySelector(".round-display");
 
   // DEBUG: I HAVE YET TO FIGURE OUT THE FLOW
 
@@ -241,6 +236,10 @@ const DOMdisplayController = (() => {
     notificationDiv.textContent = message;
   };
 
+  const renderRound = (message) => {
+    roundDiv.textContent = message;
+  };
+
   const resetBoardDisplay = () => {
     for (let cell of cellNodeList) {
       cell.textContent = "";
@@ -251,12 +250,16 @@ const DOMdisplayController = (() => {
     renderCellContents,
     renderNotification,
     resetBoardDisplay,
+    renderRound,
   };
 })();
 
 const gameStart = () => {
   const startGameBtn = document.querySelector(
     "body > div.game-interface > div.game-controls > button:nth-child(1)",
+  );
+  const playAgainBtn = document.querySelector(
+    ".game-controls > button:nth-child(2)",
   );
   const modal = document.querySelector(".modal");
   const modalForm = document.querySelector(".modal-form");
@@ -267,6 +270,26 @@ const gameStart = () => {
   const userNameTwo = document.querySelector("#user-name-two");
   const symbolTwo = document.querySelector("#symbol-two");
   const gameBoardDiv = document.querySelector(".game-board");
+  const cellNodeList = document.querySelectorAll(".container div");
+  let board = gameBoard.getBoard();
+
+  cellNodeList.forEach((cell) => {
+    cell.addEventListener("click", () => {
+      row = cell.dataset.row;
+      col = cell.dataset.column;
+      if (board[row][col] == " ") {
+        let returnVal = gameStateController.playRound(row, col);
+        if (returnVal !== "round end") {
+          gameLoop();
+        } else {
+          log(returnVal);
+        }
+        // THIS LOOP WORKS AS INTENDED BUT NEEDS A BREAK AFTER EACH ROUND
+      } else {
+        DOMdisplayController.renderNotification("Space already occupied!");
+      }
+    });
+  });
 
   const showModal = (() => {
     startGameBtn.addEventListener("click", () => {
@@ -279,22 +302,12 @@ const gameStart = () => {
   });
 
   const gameLoop = () => {
-    const cellNodeList = document.querySelectorAll(".container div");
-    let board = gameBoard.getBoard();
-
-    for (cell of cellNodeList) {
-      cell.addEventListener("click", () => {
-        let activePlayer = gameStateController.getActivePlayer();
-        row = cell.dataset.row;
-        col = cell.dataset.column;
-        if (board[row][col] == " ") {
-          gameBoard.assignValue(activePlayer, row, col);
-          DOMdisplayController.renderCellContents(row, col, activePlayer);
-        } else {
-          DOMdisplayController.renderNotification("Space already occupied!");
-        }
-      });
-    }
+    board = gameBoard.getBoard();
+    let round = gameStateController.getRound();
+    let activePlayer = gameStateController.getActivePlayer();
+    DOMdisplayController.renderRound(
+      `Round: ${round} ${activePlayer.name}'s turn: `,
+    );
   };
 
   modalConfirmBtn.addEventListener("click", (e) => {
@@ -318,12 +331,11 @@ const gameStart = () => {
       symbolTwo.value.toString(),
     );
 
-    log(gameStateController.getActivePlayer());
-    log(gameStateController.scoreBoard());
-
     modal.close();
     modalForm.reset();
     gameBoardDiv.classList.toggle("none");
+    startGameBtn.classList.toggle("none");
+    playAgainBtn.classList.toggle("none");
 
     gameLoop();
   });
