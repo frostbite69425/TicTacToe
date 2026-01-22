@@ -55,10 +55,6 @@ const gameBoard = (function gameBoard() {
 const gameStateController = (() => {
   let playersArray = [];
 
-  const getPlayerPoints = (player) => {
-    return player.points;
-  };
-
   let activePlayer;
 
   const setPlayers = (name, symbol) => {
@@ -78,9 +74,9 @@ const gameStateController = (() => {
   let round = 1;
 
   const scoreBoard = () => {
-    for (player of playersArray) {
-      log(`${player.name}'s points : ${getPlayerPoints(player)}`);
-    }
+    let playerOne, playerTwo;
+    [playerOne, playerTwo] = playersArray;
+    DOMdisplayController.renderScore(playerOne, playerTwo);
   };
 
   //   FUNCTION FOR GETTING, RESETING AND INCREASING THE ROUND
@@ -100,6 +96,10 @@ const gameStateController = (() => {
   };
 
   const getActivePlayer = () => activePlayer;
+
+  const setActivePlayer = () => {
+    activePlayer = playersArray[0];
+  };
 
   // PASSING THE ROWNUM AND COLNUM ARGUMENTS INTO PLAYROUND
 
@@ -122,10 +122,10 @@ const gameStateController = (() => {
         DOMdisplayController.renderNotification("It's a tie! Nobody wins!");
         switchPlayer();
         scoreBoard();
-        gameBoard.resetBoard();
-        DOMdisplayController.resetBoardDisplay();
-        resetRound();
-        // DEBUG
+        // gameBoard.resetBoard();
+        // DOMdisplayController.resetBoardDisplay();
+        // resetRound();
+        // DEBUG: THIS DISPLAY WIPING THINGY NEEDS TO HAPPEN ON USER INPUT. IF THE USER WANTS TO PLAY AGAIN
         return "round end";
       } else if (result == 1) {
         switchPlayer();
@@ -135,9 +135,9 @@ const gameStateController = (() => {
         log(gameBoard.getBoard());
         incPlayerPoints(activePlayer);
         scoreBoard();
-        gameBoard.resetBoard();
-        DOMdisplayController.resetBoardDisplay();
-        resetRound();
+        // gameBoard.resetBoard();
+        // DOMdisplayController.resetBoardDisplay();
+        // resetRound();
         return "round end";
       }
     }
@@ -149,6 +149,8 @@ const gameStateController = (() => {
     scoreBoard,
     getRound,
     setPlayers,
+    resetRound,
+    setActivePlayer,
   };
 })();
 
@@ -212,13 +214,17 @@ const winConChecker = (() => {
 })();
 
 const DOMdisplayController = (() => {
-  const cellNodeList = document.querySelectorAll(".container div");
+  const cellNodeList = document.querySelectorAll(".container button");
   const notificationDiv = document.querySelector(".notification");
   const roundDiv = document.querySelector(".round-display");
+  const scoreBoardDiv = document.querySelector(".scoreboard");
+  const playerOneScoreDiv = document.querySelector(".player-one-score");
+  const playerTwoScoreDiv = document.querySelector(".player-two-score");
 
-  // DEBUG: I HAVE YET TO FIGURE OUT THE FLOW
-
-  // FLOW THINGY MOVED OUTSIDE OF THE DISPLAY CONTROLLER
+  const renderScore = (playerOne, playerTwo) => {
+    playerOneScoreDiv.textContent = `${playerOne.name}'s score: ${playerOne.points}`;
+    playerTwoScoreDiv.textContent = `${playerTwo.name}'s score: ${playerTwo.points}`;
+  };
 
   const renderCellContents = (row, column, player) => {
     for (let cell of cellNodeList) {
@@ -251,6 +257,7 @@ const DOMdisplayController = (() => {
     renderNotification,
     resetBoardDisplay,
     renderRound,
+    renderScore,
   };
 })();
 
@@ -270,19 +277,44 @@ const gameStart = () => {
   const userNameTwo = document.querySelector("#user-name-two");
   const symbolTwo = document.querySelector("#symbol-two");
   const gameBoardDiv = document.querySelector(".game-board");
-  const cellNodeList = document.querySelectorAll(".container div");
+  const cellNodeList = document.querySelectorAll(".container button");
   let board = gameBoard.getBoard();
+
+  playAgainBtn.addEventListener("click", () => {
+    gameBoard.resetBoard();
+    DOMdisplayController.resetBoardDisplay();
+    DOMdisplayController.renderNotification("");
+    gameStateController.resetRound();
+    cellNodeList.forEach((cell) => {
+      cell.disabled = false;
+    });
+    gameStateController.setActivePlayer();
+    board = gameBoard.getBoard();
+    let round = gameStateController.getRound();
+    let activePlayer = gameStateController.getActivePlayer();
+    DOMdisplayController.renderRound(
+      `Round: ${round} ${activePlayer.name}'s turn: `,
+    );
+  });
+
+  // DEBUG: THE ROUND AFTER WIPING THE BOARD RETAINS THE ROUND NUMBER OF THE LAST ROUND AND THE LAST ROUND'S WINNER GOES FIRST FOR SOME REASON
+
+  // DEBUG: WILL HAVE TO CHANGE THE DIVS INTO BUTTONS
 
   cellNodeList.forEach((cell) => {
     cell.addEventListener("click", () => {
       row = cell.dataset.row;
       col = cell.dataset.column;
       if (board[row][col] == " ") {
+        playAgainBtn.disabled = true;
         let returnVal = gameStateController.playRound(row, col);
         if (returnVal !== "round end") {
           gameLoop();
         } else {
-          log(returnVal);
+          playAgainBtn.disabled = false;
+          cellNodeList.forEach((cell) => {
+            cell.disabled = true;
+          });
         }
         // THIS LOOP WORKS AS INTENDED BUT NEEDS A BREAK AFTER EACH ROUND
       } else {
