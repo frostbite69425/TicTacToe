@@ -76,12 +76,16 @@ h6 {
 
 .game-interface {
   height: 100dvh;
-  display: grid;
-  grid-template-rows: 1fr 1fr 2fr 1fr 50px;
+  /* display: grid;
+  grid-template-rows: 1fr 1fr 2fr 1fr 50px; */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .container {
-  height: 80dvh;
+  height: fit-content;
   place-items: center;
   display: grid;
   grid-template-columns: repeat(3, 100px);

@@ -101,10 +101,7 @@ const gameStateController = (() => {
     activePlayer = playersArray[0];
   };
 
-  // PASSING THE ROWNUM AND COLNUM ARGUMENTS INTO PLAYROUND
-
   const playRound = (rowNum, colNum) => {
-    // DEBUG: THIS WILL STILL NEED A VALIDATION CHECK IN ORDER TO PREVENT THE CODE FROM BREAKING
     let returnVal = gameBoard.assignValue(activePlayer, rowNum, colNum);
     if (returnVal) {
       DOMdisplayController.renderCellContents(rowNum, colNum, activePlayer);
@@ -122,22 +119,14 @@ const gameStateController = (() => {
         DOMdisplayController.renderNotification("It's a tie! Nobody wins!");
         switchPlayer();
         scoreBoard();
-        // gameBoard.resetBoard();
-        // DOMdisplayController.resetBoardDisplay();
-        // resetRound();
-        // DEBUG: THIS DISPLAY WIPING THINGY NEEDS TO HAPPEN ON USER INPUT. IF THE USER WANTS TO PLAY AGAIN
         return "round end";
       } else if (result == 1) {
         switchPlayer();
         activePlayer = getActivePlayer();
 
         DOMdisplayController.renderNotification(`${activePlayer.name} wins!`);
-        log(gameBoard.getBoard());
         incPlayerPoints(activePlayer);
         scoreBoard();
-        // gameBoard.resetBoard();
-        // DOMdisplayController.resetBoardDisplay();
-        // resetRound();
         return "round end";
       }
     }
@@ -153,8 +142,6 @@ const gameStateController = (() => {
     setActivePlayer,
   };
 })();
-
-// DEBUG MAKING GAMESTATECONTROLLER AN IIFE TO AVOID MAKING DIFFERENT INSTANCES OF THE SAME VARIABLES.
 
 const winConChecker = (() => {
   const checkRoundWin = () => {
@@ -297,10 +284,6 @@ const gameStart = () => {
     );
   });
 
-  // DEBUG: THE ROUND AFTER WIPING THE BOARD RETAINS THE ROUND NUMBER OF THE LAST ROUND AND THE LAST ROUND'S WINNER GOES FIRST FOR SOME REASON
-
-  // DEBUG: WILL HAVE TO CHANGE THE DIVS INTO BUTTONS
-
   cellNodeList.forEach((cell) => {
     cell.addEventListener("click", () => {
       row = cell.dataset.row;
@@ -316,7 +299,6 @@ const gameStart = () => {
             cell.disabled = true;
           });
         }
-        // THIS LOOP WORKS AS INTENDED BUT NEEDS A BREAK AFTER EACH ROUND
       } else {
         DOMdisplayController.renderNotification("Space already occupied!");
       }
@@ -344,14 +326,15 @@ const gameStart = () => {
 
   modalConfirmBtn.addEventListener("click", (e) => {
     e.preventDefault();
-    if (
-      !userNameOne.checkValidity() ||
-      !userNameTwo.checkValidity() ||
-      !symbolOne.checkValidity() ||
-      !symbolTwo.checkValidity()
-    ) {
+    if (!userNameOne.checkValidity() || !userNameTwo.checkValidity()) {
       modalForm.reportValidity();
       return;
+    } else if (symbolOne.value.toString() == symbolTwo.value.toString()) {
+      symbolTwo.setCustomValidity("The two symbols can't be the same!");
+      symbolTwo.reportValidity();
+      return;
+    } else {
+      symbolTwo.setCustomValidity("");
     }
 
     gameStateController.setPlayers(
