@@ -1,11 +1,11 @@
 @font-face {
   font-family: "Bitcount";
-  src: url(/assets/googleFonts/Bitcount_Prop_Single/BitcountPropSingle-VariableFont_CRSV\,ELSH\,ELXP\,slnt\,wght.ttf);
+  src: url(/assets/googleFonts/Bitcount_Prop_Single/static/BitcountPropSingle-Regular.ttf);
 }
 
 @font-face {
   font-family: "Google Sans";
-  src: url(/assets/googleFonts/Google_Sans_Flex/GoogleSansFlex-VariableFont_GRAD\,ROND\,opsz\,slnt\,wdth\,wght.ttf);
+  src: url(/assets/googleFonts/Google_Sans_Flex/static/GoogleSansFlex_120pt-Regular.ttf);
 }
 
 /* 1. Use a more-intuitive box-sizing model */
