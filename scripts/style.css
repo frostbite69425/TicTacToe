@@ -1,3 +1,13 @@
+@font-face {
+  font-family: "Bitcount";
+  src: url(/assets/googleFonts/Bitcount_Prop_Single/BitcountPropSingle-VariableFont_CRSV\,ELSH\,ELXP\,slnt\,wght.ttf);
+}
+
+@font-face {
+  font-family: "Google Sans";
+  src: url(/assets/googleFonts/Google_Sans_Flex/GoogleSansFlex-VariableFont_GRAD\,ROND\,opsz\,slnt\,wdth\,wght.ttf);
+}
+
 /* 1. Use a more-intuitive box-sizing model */
 *,
 *::before,
@@ -74,20 +84,207 @@ h6 {
   isolation: isolate;
 }
 
-.game-interface {
+:root {
+  font-size: 10px;
+
+  /* hsl (fallback color) */
+  --bg-dark: hsl(205 27% 1%);
+  --bg: hsl(203 17% 4%);
+  --bg-light: hsl(203 9% 9%);
+  --text: hsl(203 45% 95%);
+  --text-muted: hsl(203 7% 69%);
+  --highlight: hsl(203 5% 39%);
+  --border: hsl(203 7% 28%);
+  --border-muted: hsl(203 10% 18%);
+  --primary: hsl(202 72% 67%);
+  --secondary: hsl(24 66% 67%);
+  --danger: hsl(9 26% 64%);
+  --warning: hsl(52 19% 57%);
+  --success: hsl(146 17% 59%);
+  --info: hsl(217 28% 65%);
+  /* oklch */
+  --bg-dark: oklch(0.1 0.005 235);
+  --bg: oklch(0.15 0.005 235);
+  --bg-light: oklch(0.2 0.005 235);
+  --text: oklch(0.96 0.01 235);
+  --text-muted: oklch(0.76 0.01 235);
+  --highlight: oklch(62.426% 0.00118 13.868);
+  --border: oklch(0.4 0.01 235);
+  --border-muted: oklch(0.3 0.01 235);
+  --primary: oklch(0.76 0.1 235);
+  --secondary: oklch(0.76 0.1 55);
+  --danger: oklch(64.896% 0.17643 31.986);
+  --warning: oklch(0.7 0.05 100);
+  --success: oklch(68.59% 0.16267 153.34);
+  --info: oklch(0.7 0.05 260);
+  --border-card: 2px solid var(var(--border));
+  --gradient: radial-gradient(
+    at right top,
+    rgb(0, 255, 170),
+    rgb(56, 109, 255)
+  );
+  --gradient-hover: linear-gradient(0deg, rgb(0, 255, 170), rgb(56, 109, 255));
+  --git-gradient: linear-gradient(0deg, rgb(4, 24, 153), rgb(94, 130, 230));
+  --disabled: linear-gradient(0deg, rgb(70, 70, 71), rgb(204, 206, 213));
+  --disabled-text: oklch(51.208% 0.0025 15.958);
+}
+body.light {
+  /* hsl (fallback color) */
+  --bg-dark: hsl(203 11% 90%);
+  --bg: hsl(203 22% 95%);
+  --bg-light: hsl(203 100% 100%);
+  --text: hsl(203 34% 4%);
+  --text-muted: hsl(203 7% 28%);
+  --highlight: hsl(203 100% 100%);
+  --border: hsl(203 4% 50%);
+  --border-muted: hsl(203 6% 62%);
+  --primary: hsl(196 100% 18%);
+  --secondary: hsl(29 100% 22%);
+  --danger: hsl(9 21% 41%);
+  --warning: hsl(52 23% 34%);
+  --success: hsl(147 19% 36%);
+  --info: hsl(217 22% 41%);
+  /* oklch */
+  --bg-dark: oklch(0.92 0.005 235);
+  --bg: oklch(0.96 0.005 235);
+  --bg-light: oklch(1 0.005 235);
+  --text: oklch(0.15 0.01 235);
+  --text-muted: oklch(0.4 0.01 235);
+  --highlight: oklch(1 0.01 235);
+  --border: oklch(0.6 0.01 235);
+  --border-muted: oklch(0.7 0.01 235);
+  --primary: oklch(0.4 0.1 235);
+  --secondary: oklch(0.4 0.1 55);
+  --danger: oklch(67.646% 0.1726 33.009);
+  --warning: oklch(0.5 0.05 100);
+  --success: oklch(76.245% 0.19159 152.331);
+  --info: oklch(0.5 0.05 260);
+  --border-card: 2px solid var(var(--bg-dark));
+  --gradient: radial-gradient(
+    at right top,
+    rgb(135, 172, 237),
+    rgb(27, 67, 242)
+  );
+  --gradient-hover: linear-gradient(0deg, rgb(135, 172, 237), rgb(27, 67, 242));
+  --git-gradient: linear-gradient(0deg, rgb(36, 163, 116), rgb(25, 245, 153));
+  --disabled: linear-gradient(0deg, rgb(105, 105, 107), rgb(204, 206, 213));
+  --disabled-text: oklch(65.849% 0.0071 16.758);
+}
+
+body {
+  font-family:
+    "Google Sans",
+    Arial,
+    Helvetica,
+    sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    "Open Sans",
+    "Helvetica Neue",
+    sans-serif;
+  padding: 1rem 1rem;
+  background-color: var(--bg-dark);
+}
+
+::backdrop {
+  background-color: var(--bg);
+  opacity: 0.9;
+  filter: blur(8px);
+}
+
+.main-grid {
+  display: grid;
+  grid-template-rows: 1fr 3fr 50px;
   height: 100dvh;
-  /* display: grid;
-  grid-template-rows: 1fr 1fr 2fr 1fr 50px; */
+  gap: 1rem;
+}
+
+.hero {
+  position: relative;
+  display: grid;
+  place-items: center;
+  background-color: var(--bg);
+  border-radius: 15px;
+  gap: 1rem;
+  place-items: center;
+
+  > .heading-container {
+    background: var(--bg-light);
+    border-radius: 17px;
+    box-shadow: 3px 7px 3px var(--bg-dark);
+    border-top: 1px solid var(--highlight);
+  }
+  .heading {
+    font-size: clamp(3.5rem, 10dvw, 6rem);
+    font-family: "Bitcount";
+    font-weight: 400;
+
+    background-image: var(--gradient);
+    color: transparent;
+    background-clip: text;
+    padding: 0.5rem 1rem;
+  }
+
+  > .heading:hover {
+    background-image: var(--gradient-hover);
+  }
+
+  > .theme {
+    position: absolute;
+    top: 0.5rem;
+    right: 1rem;
+    border-radius: 100%;
+    padding: 0.4rem;
+    background-color: var(--bg-light);
+    justify-self: right;
+    border: none;
+    box-shadow: 3px 7px 3px var(--bg-dark);
+    transition: all 0.3s ease-in-out;
+  }
+}
+
+.game-interface {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  gap: 1.5rem;
+
+  .round-display {
+    color: var(--text-muted);
+    font-size: clamp(1.4rem, 3dvw, 2.5rem);
+    background-color: var(--bg-light);
+    padding: 1rem 2rem;
+    border-radius: 15px;
+    border: none;
+    border-top: 1px solid var(--highlight);
+  }
+}
+
+.notification,
+.scoreboard {
+  color: var(--text-muted);
+  font-size: clamp(1.4rem, 3dvw, 2.5rem);
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.scoreboard {
+  display: flex;
+  gap: 2rem;
+  text-transform: uppercase;
 }
 
 .container {
   height: fit-content;
-  place-items: center;
   display: grid;
+  place-items: center;
   grid-template-columns: repeat(3, 100px);
   grid-template-rows: repeat(3, 100px);
   gap: 1rem;
@@ -95,11 +292,174 @@ h6 {
   > button {
     height: 100%;
     width: 100%;
-    background-color: #7c7c7c;
-    color: white;
+    background: var(--bg);
+    border: none;
+    color: var(--text);
     font-size: 50px;
     text-align: center;
+    transition: transform 0.2s ease-in-out;
   }
+
+  > button:hover {
+    background-color: var(--bg-light);
+    transform: scale(1.05);
+  }
+
+  > button:nth-child(1),
+  > button:nth-child(2),
+  > button:nth-child(3) {
+    border-top: 2px solid var(--highlight);
+  }
+  > button:nth-child(1) {
+    border-radius: 25px 0px 0px 0px;
+  }
+
+  > button:nth-child(3) {
+    border-radius: 0px 25px 0px 0px;
+  }
+
+  > button:nth-child(7) {
+    border-radius: 0px 0px 0px 25px;
+  }
+
+  > button:nth-child(9) {
+    border-radius: 0px 0px 25px 0px;
+  }
+}
+
+.game-controls {
+  font-family: "Bitcount";
+
+  > .start-button {
+    padding: 1rem 2rem;
+    border-radius: 15px;
+    font-size: clamp(2.5rem, 5dvw, 4rem);
+    border: none;
+    border-top: 1px solid var(--highlight);
+    box-shadow: 2px 3px 5px var(--bg);
+    font-weight: 400;
+    background-color: var(--bg-light);
+    color: var(--success);
+    cursor: pointer;
+  }
+
+  .play-again-button {
+    padding: 1rem 2rem;
+    border-radius: 15px;
+    font-size: clamp(2.5rem, 5dvw, 4rem);
+    border: none;
+    border-top: 1px solid var(--highlight);
+    box-shadow: 2px 3px 5px var(--bg);
+    font-weight: 400;
+    background-color: var(--bg-light);
+    color: var(--text-muted);
+    transition: transform 0.5s ease-in-out;
+    cursor: pointer;
+  }
+
+  .play-again-button:hover {
+    transform: scale(1.03);
+  }
+
+  .play-again-button:disabled {
+    background: var(--disabled);
+    color: var(--disabled-text);
+    transform: none;
+    cursor: not-allowed;
+  }
+}
+
+.footer {
+  display: grid;
+  place-items: center;
+
+  > button {
+    min-width: 25%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1rem;
+    font-size: clamp(1.2rem, 5dvw, 2rem);
+    background: var(--bg-light);
+    color: var(--text);
+    border: none;
+    border-top: 1px solid var(--highlight);
+    border-radius: 15px;
+    box-shadow: 2px 3px 5px var(--bg);
+    transition: transform 0.5s ease-in-out;
+    background: var(--git-gradient);
+  }
+
+  > button:hover {
+    transform: scale(1.04);
+  }
+}
+
+.modal {
+  margin: auto;
+  padding: 1.5rem 2rem;
+  background-color: var(--bg-light);
+  border: none;
+  border-radius: 15px;
+  border-top: 1px solid var(--highlight);
+  color: var(--text-muted);
+
+  > form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 1rem 1rem;
+    font-size: clamp(1.4rem, 2dvw, 2rem);
+
+    input {
+      width: 100%;
+      border-radius: 5px;
+      border: none;
+      box-shadow: 3px 5px 5px var(--bg-dark);
+      background-color: rgb(236, 234, 234);
+    }
+
+    select {
+      padding: 0rem 0.5rem;
+      background: var(--gradient);
+      border-radius: 5px;
+    }
+
+    > .modal-btns {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+
+      > button {
+        padding: 0.2rem 2rem;
+        border-radius: 5px;
+        border: none;
+        border-top: 1px solid var(--highlight);
+        box-shadow: 2px 5px 5px var(--bg-dark);
+        color: var(--text);
+      }
+
+      > .cancel {
+        background-color: var(--danger);
+      }
+
+      > .confirm {
+        background-color: var(--success);
+      }
+    }
+  }
+}
+
+/* overrides */
+
+div.game-interface > div.game-board > div > button.one {
+  background-color: var(--success);
+}
+
+div.game-interface > div.game-board > div > .two {
+  background-color: var(--danger);
 }
 
 .none {
