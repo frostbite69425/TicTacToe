@@ -188,7 +188,7 @@ body {
     "Open Sans",
     "Helvetica Neue",
     sans-serif;
-  padding: 1rem 1rem;
+  padding: 0rem 1rem;
   background-color: var(--bg-dark);
 }
 
