@@ -329,6 +329,8 @@ body {
 
 .game-controls {
   font-family: "Bitcount";
+  display: flex;
+  gap: 2rem;
 
   > .start-button {
     padding: 1rem 2rem;
@@ -343,7 +345,8 @@ body {
     cursor: pointer;
   }
 
-  .play-again-button {
+  .play-again-button,
+  .restart-button {
     padding: 1rem 2rem;
     border-radius: 15px;
     font-size: clamp(2.5rem, 5dvw, 4rem);
@@ -357,11 +360,13 @@ body {
     cursor: pointer;
   }
 
-  .play-again-button:hover {
+  .play-again-button:hover,
+  .restart-button:hover {
     transform: scale(1.03);
   }
 
-  .play-again-button:disabled {
+  .play-again-button:disabled,
+  .restart-button:disabled {
     background: var(--disabled);
     color: var(--disabled-text);
     transform: none;

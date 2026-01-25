@@ -67,6 +67,8 @@ const gameStateController = (() => {
     activePlayer = playersArray[0];
   };
 
+  const getPlayers = () => playersArray;
+
   const incPlayerPoints = (player) => {
     player.points = player.points + 1;
   };
@@ -141,6 +143,7 @@ const gameStateController = (() => {
     setPlayers,
     resetRound,
     setActivePlayer,
+    getPlayers,
   };
 })();
 
@@ -287,6 +290,7 @@ const gameStart = () => {
   const themeSwitchBtn = document.querySelector("button.theme");
   const gitBtn = document.querySelector(".git-button");
   const roundDiv = document.querySelector(".round-display");
+  const restartBtn = document.querySelector(".restart-button");
   let board = gameBoard.getBoard();
 
   themeSwitchBtn.addEventListener("click", (e) => {
@@ -333,17 +337,25 @@ const gameStart = () => {
     );
   });
 
+  restartBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    window.location.reload();
+  });
+
   cellNodeList.forEach((cell) => {
     cell.addEventListener("click", () => {
       row = cell.dataset.row;
       col = cell.dataset.column;
       if (board[row][col] == " ") {
         playAgainBtn.disabled = true;
+        restartBtn.disabled = true;
+
         let returnVal = gameStateController.playRound(row, col);
         if (returnVal !== "round end") {
           gameLoop();
         } else {
           playAgainBtn.disabled = false;
+          restartBtn.disabled = false;
           cellNodeList.forEach((cell) => {
             cell.disabled = true;
           });
@@ -371,6 +383,38 @@ const gameStart = () => {
     DOMdisplayController.renderRound(
       `Round: ${round} ${activePlayer.name}'s turn: `,
     );
+    // AI IMPLEMENTATION?
+
+    const getRandomInt = () => {
+      return Math.floor(Math.random() * 3);
+    };
+
+    if (activePlayer == gameStateController.getPlayers()[1]) {
+      let randomRow = getRandomInt().toString();
+      let randomCol = getRandomInt().toString();
+
+      while (board[randomRow][randomCol] !== " " && round <= 8) {
+        randomRow = getRandomInt().toString();
+        randomCol = getRandomInt().toString();
+      }
+
+      if (board[randomRow][randomCol] == " ") {
+        playAgainBtn.disabled = true;
+        restartBtn.disabled = true;
+        let returnVal = gameStateController.playRound(randomRow, randomCol);
+        if (returnVal !== "round end") {
+          gameLoop();
+        } else {
+          playAgainBtn.disabled = false;
+          restartBtn.disabled = false;
+          cellNodeList.forEach((cell) => {
+            cell.disabled = true;
+          });
+        }
+      } else {
+        DOMdisplayController.renderNotification("Space already occupied!");
+      }
+    }
   };
 
   modalConfirmBtn.addEventListener("click", (e) => {
@@ -401,6 +445,7 @@ const gameStart = () => {
     roundDiv.classList.toggle("none");
     startGameBtn.classList.toggle("none");
     playAgainBtn.classList.toggle("none");
+    restartBtn.classList.toggle("none");
 
     gameLoop();
   });
