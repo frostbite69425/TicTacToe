@@ -201,7 +201,24 @@ const winConChecker = (() => {
     return winCon;
   };
 
-  return { winConController, checkRoundWin };
+  const botWinLogic = (array) => {
+    let prioWin = false;
+    let botSymbol = gameStateController.getPlayers()[1].symbol;
+    for (row of array) {
+      if (row.includes(botSymbol)) {
+        if (row.filter((cellValue) => cellValue == botSymbol).length == 2) {
+          if (row.includes(" ")) {
+            return (prioWin = true);
+          }
+        }
+      } else {
+        continue;
+      }
+    }
+    return prioWin;
+  };
+
+  return { winConController, checkRoundWin, botWinLogic };
 })();
 
 const DOMdisplayController = (() => {
@@ -344,8 +361,8 @@ const gameStart = () => {
 
   cellNodeList.forEach((cell) => {
     cell.addEventListener("click", () => {
-      row = cell.dataset.row;
-      col = cell.dataset.column;
+      let row = cell.dataset.row;
+      let col = cell.dataset.column;
       if (board[row][col] == " ") {
         playAgainBtn.disabled = true;
         restartBtn.disabled = true;
@@ -376,6 +393,238 @@ const gameStart = () => {
     modal.close();
   });
 
+  const botAiLogic = () => {
+    let firstLateralRow = board[0];
+    let secondLateralRow = board[1];
+    let thirdLateralRow = board[2];
+
+    let firstDiagonalRow = [board[0][0], board[1][1], board[2][2]];
+    let secondDiagonalRow = [board[0][2], board[1][1], board[2][0]];
+
+    let firstColumn = [board[0][0], board[1][0], board[2][0]];
+    let secondColumn = [board[0][1], board[1][1], board[2][1]];
+    let thirdColumn = [board[0][2], board[1][2], board[2][2]];
+
+    let botWinArray = [
+      firstLateralRow,
+      secondLateralRow,
+      thirdLateralRow,
+      firstDiagonalRow,
+      secondDiagonalRow,
+      firstColumn,
+      secondColumn,
+      thirdColumn,
+    ];
+
+    const corners = [
+      [0, 0],
+      [0, 2],
+      [2, 0],
+      [2, 2],
+    ];
+
+    const center = board[1][1];
+
+    const centerAdjacentCells = [
+      [0, 1],
+      [1, 0],
+      [1, 2],
+      [2, 1],
+    ];
+
+    const winCoordinates = [
+      // rows
+
+      [
+        [0, 0],
+        [0, 1],
+        [0, 2],
+      ],
+
+      [
+        [1, 0],
+        [1, 1],
+        [1, 2],
+      ],
+
+      [
+        [2, 0],
+        [2, 1],
+        [2, 2],
+      ],
+
+      // columns
+
+      [
+        [0, 0],
+        [1, 0],
+        [2, 0],
+      ],
+
+      [
+        [0, 1],
+        [1, 1],
+        [2, 1],
+      ],
+
+      [
+        [0, 2],
+        [1, 2],
+        [2, 2],
+      ],
+
+      // diagonals
+
+      [
+        [0, 0],
+        [1, 1],
+        [2, 2],
+      ],
+
+      [
+        [0, 2],
+        [1, 1],
+        [2, 0],
+      ],
+    ];
+
+    // MAIN LOGIC
+
+    // DEBUG: REMOVE THIS ROUND CALL LATER
+
+    let round = gameStateController.getRound();
+
+    const playerSymbol = gameStateController.getPlayers()[0].symbol;
+    const botSymbol = gameStateController.getPlayers()[1].symbol;
+
+    if (round <= 3) {
+      if (center == " ") {
+        return [1, 1];
+      } else {
+        for (let coordinates of corners) {
+          let [row, col] = coordinates;
+          if (board[row][col] == " ") {
+            return coordinates;
+          }
+        }
+      }
+    } else {
+      let prioWin = winConChecker.botWinLogic(botWinArray);
+      log(prioWin);
+      if (!prioWin) {
+        for (coords of winCoordinates) {
+          log(coords);
+          let xCount = 0;
+          let spaceCount = 0;
+          let spaceCoords = [];
+          for ([row, col] of coords) {
+            if (board[row][col] == playerSymbol) {
+              xCount++;
+            } else if (board[row][col] == " ") {
+              spaceCount++;
+              spaceCoords.push(row, col);
+            }
+            log({ xCount, spaceCoords });
+          }
+          if (xCount == 2 && spaceCount == 1) {
+            let [returnRow, returnCol] = spaceCoords;
+            return [returnRow, returnCol];
+          }
+        }
+
+        for (coords of corners) {
+          let [row, col] = coords;
+          if (board[row][col] == " ") {
+            log("randomising");
+            return [row, col];
+          }
+        }
+      } else {
+        for (coords of winCoordinates) {
+          let xCount = 0;
+          let spaceCount = 0;
+          let spaceCoords = [];
+          for ([row, col] of coords) {
+            if (board[row][col] == botSymbol) {
+              xCount++;
+            } else if (board[row][col] == " ") {
+              spaceCount++;
+              spaceCoords.push(row, col);
+            }
+          }
+          if (xCount == 2 && spaceCount == 1) {
+            let [returnRow, returnCol] = spaceCoords;
+            return [returnRow, returnCol];
+          }
+        }
+
+        for (coords of corners) {
+          let [row, col] = coords;
+          if (board[row][col] == " ") {
+            log("randomising");
+            return [row, col];
+          }
+        }
+      }
+
+      // for (coords of tictactoeCoords) {
+      //   // OPP WIN CHECK
+      //   if (!prioWin) {
+      //     if (
+      //       (board[coords[0]].includes(" ") &&
+      //         board[coords[0]].filter((cellValue) => cellValue == playerSymbol)
+      //           .length == 2) ||
+      //       firstColumn.filter((cellValue) => cellValue == playerSymbol)
+      //         .length == 2 ||
+      //       secondColumn.filter((cellValue) => cellValue == playerSymbol)
+      //         .length == 2 ||
+      //       thirdColumn.filter((cellValue) => cellValue == playerSymbol)
+      //         .length == 2
+      //     ) {
+      //       let [row, col] = coords;
+      //       if (board[row][col] == " ") {
+      //         log("prio not met");
+      //         return [row, col];
+      //       }
+      //     } else if (
+      //       (board[coords[0]].includes(" ") &&
+      //         firstDiagonalRow.filter((cellValue) => cellValue == playerSymbol)
+      //           .length == 2) ||
+      //       secondDiagonalRow.filter((cellValue) => cellValue == playerSymbol)
+      //         .length == 2
+      //     ) {
+      //       log(coords);
+      //       let [row, col] = coords;
+      //       return [row, col];
+      //     }
+      //   } else if (prioWin) {
+      //     for (orientations of botWinArray) {
+      //       if (
+      //         orientations.includes(botSymbol) &&
+      //         orientations.filter((cellValue) => cellValue == botSymbol)
+      //           .length == 2
+      //       ) {
+      //         log(orientations);
+      //         let row = orientations.indexOf(" ");
+      //         let col = coords[1];
+      //         log(row);
+      //         log(col);
+      //         return [row, col];
+      //       }
+      //     }
+      //   } else {
+      //     for (coords of centerAdjacentCells) {
+      //       let [row, col] = coords;
+      //       if (board[row][col] == " ") {
+      //         log("prio not determined");
+      //         return [row, col];
+      //       }
+      //     }
+      //   }
+      // }
+    }
+  };
+
   const gameLoop = () => {
     board = gameBoard.getBoard();
     let round = gameStateController.getRound();
@@ -385,18 +634,20 @@ const gameStart = () => {
     );
     // AI IMPLEMENTATION?
 
-    const getRandomInt = () => {
-      return Math.floor(Math.random() * 3);
-    };
+    // const getRandomInt = () => {
+    //   return Math.floor(Math.random() * 3);
+    // };
 
     if (activePlayer == gameStateController.getPlayers()[1]) {
-      let randomRow = getRandomInt().toString();
-      let randomCol = getRandomInt().toString();
+      // let randomRow = getRandomInt().toString();
+      // let randomCol = getRandomInt().toString();
 
-      while (board[randomRow][randomCol] !== " " && round <= 8) {
-        randomRow = getRandomInt().toString();
-        randomCol = getRandomInt().toString();
-      }
+      // while (board[randomRow][randomCol] !== " " && round <= 8) {
+      //   randomRow = getRandomInt().toString();
+      //   randomCol = getRandomInt().toString();
+      // }
+
+      let [randomRow, randomCol] = botAiLogic();
 
       if (board[randomRow][randomCol] == " ") {
         playAgainBtn.disabled = true;
